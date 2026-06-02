@@ -1,0 +1,34 @@
+---
+description: Archiviazione revisioni sketch Heltec (max 3 snapshot)
+globs: heltec_esp32_lora_acquedotto/**
+alwaysApply: false
+---
+
+# Revisioni sketch Heltec
+
+## Cartelle
+
+| Cartella | Ruolo |
+|----------|--------|
+| `heltec_esp32_lora_acquedotto/` | **Sempre l'ultima versione** — unica cartella da modificare |
+| `heltec_esp32_lora_acquedotto_revNNN/` | Snapshot congelati (max **3**), non modificare |
+
+## Obbligatorio prima di ogni modifica al `.ino` / header del progetto
+
+1. Leggi `SKETCH_REV` nel file principale (es. `7`).
+2. Copia l'intera cartella corrente in `heltec_esp32_lora_acquedotto_revNNN/` (NNN = numero a 3 cifre, es. `007`).
+3. Nel snapshot: file `.ino` rinominato come la cartella; copia anche `oled_heltec_v2.h` e `secrets.h`.
+4. Applica le modifiche solo in `heltec_esp32_lora_acquedotto/`.
+5. Incrementa `SKETCH_REV` e `SKETCH_REV_STR`, aggiorna il commento revisione in testa al file.
+6. Aggiungi voce in `revisioni/CHANGELOG.md`.
+7. **Pulizia:** elenca tutte le cartelle `heltec_esp32_lora_acquedotto_rev*`, ordina per numero; se sono **più di 3**, elimina quelle con numero **più basso** fino a restarne 3.
+
+## Caricamento in Arduino IDE
+
+- Ultima versione: apri `heltec_esp32_lora_acquedotto/heltec_esp32_lora_acquedotto.ino`
+- Revisione precedente: apri la cartella `_revNNN` e il `.ino` con lo stesso nome della cartella
+
+## Vietato
+
+- Modificare file dentro cartelle `_rev*` (solo copia/archivio).
+- Lasciare più di 3 cartelle `_rev*` senza eliminare le più vecchie.

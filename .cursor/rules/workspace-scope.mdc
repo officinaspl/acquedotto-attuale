@@ -1,0 +1,29 @@
+---
+description: Limita agente a acquedotto attuale + librerie Arduino concesse
+alwaysApply: true
+---
+
+# Ambito workspace
+
+## Cartelle consentite
+
+1. **Progetto acquedotto** (lettura/scrittura):  
+   `c:\Users\Stefano\Desktop\acquedotto attuale`
+
+2. **Librerie Arduino** (accesso concesso dall'utente):  
+   `c:\Users\Stefano\Documents\Arduino\libraries`  
+   Usare soprattutto in **lettura** (es. Maxbotix, WiFi101, ThingSpeak). Modificare librerie globali solo se l'utente lo chiede esplicitamente.
+
+## Obbligatorio
+
+- Lavoro principale (sketch, secrets, regole) **solo** in `acquedotto attuale`.
+- Comandi shell: working directory preferita dentro `acquedotto attuale`.
+- Per qualsiasi altra cartella del PC: chiedere prima o attendere autorizzazione esplicita.
+
+## Vietato (salvo nuova autorizzazione)
+
+- Desktop generico, AppData, home, altri progetti, cartelle Documents diverse da `Arduino\libraries`, ecc.
+
+## Workspace Cursor
+
+Progetto aperto: cartella **acquedotto attuale**.
