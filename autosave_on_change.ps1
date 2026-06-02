@@ -13,7 +13,31 @@ function Write-Log {
     Add-Content -Path $LogFile -Value $line
 }
 
+function Ensure-GitKeepForEmptyDirs {
+    $created = 0
+    $dirs = Get-ChildItem -Path $ProjectDir -Directory -Recurse -Force | Where-Object {
+        $_.FullName -notlike "$ProjectDir\.git*"
+    }
+
+    foreach ($dir in $dirs) {
+        $items = Get-ChildItem -Path $dir.FullName -Force
+        if ($items.Count -eq 0) {
+            $gitkeep = Join-Path $dir.FullName ".gitkeep"
+            if (-not (Test-Path $gitkeep)) {
+                New-Item -Path $gitkeep -ItemType File -Force | Out-Null
+                $created++
+            }
+        }
+    }
+
+    if ($created -gt 0) {
+        Write-Log "created .gitkeep in $created empty folder(s)"
+    }
+}
+
 function Invoke-AutoSave {
+    Ensure-GitKeepForEmptyDirs
+
     & $GitExe add -A
     if ($LASTEXITCODE -ne 0) { Write-Log "git add failed"; return }
 
