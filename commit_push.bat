@@ -5,17 +5,18 @@ set GIT="C:\Program Files\Git\cmd\git.exe"
 set PROJ="C:\Users\Stefano\Desktop\acquedotto attuale"
 
 cd /d %PROJ%
-
-echo.
-set /p MSG=Messaggio commit: 
-if "%MSG%"=="" (
-  echo [ERRORE] Messaggio vuoto.
-  pause
-  exit /b 1
-)
+set MSG=Auto backup %date% %time%
 
 %GIT% add .
 if errorlevel 1 goto :err
+
+%GIT% diff --cached --quiet
+if not errorlevel 1 (
+  echo.
+  echo [INFO] Nessuna modifica da salvare.
+  pause
+  exit /b 0
+)
 
 %GIT% commit -m "%MSG%"
 if errorlevel 1 goto :err
@@ -24,6 +25,7 @@ if errorlevel 1 goto :err
 if errorlevel 1 goto :err
 
 echo.
+echo Commit: %MSG%
 echo [OK] Commit e push completati con successo.
 pause
 exit /b 0
