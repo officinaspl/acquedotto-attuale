@@ -3,7 +3,7 @@ $ErrorActionPreference = "Stop"
 $ProjectDir = "C:\Users\Stefano\Desktop\acquedotto attuale"
 $GitExe = "C:\Program Files\Git\cmd\git.exe"
 $LogFile = "C:\Users\Stefano\Desktop\acquedotto attuale\autosave_runtime.log"
-$PollSeconds = 15
+$PollSeconds = 60
 
 Set-Location $ProjectDir
 
