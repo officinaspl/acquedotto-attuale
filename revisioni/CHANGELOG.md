@@ -29,6 +29,17 @@
 
 *rev004 rimossa (politica ultimi 3). rev005–rev006 non erano mai state archiviate.*
 
+### nodemcu_v3_acquedotto rev003 — Commenti completi
+- Header, sezioni e commenti funzioni come sketch Heltec
+
+### nodemcu_v3_acquedotto rev002 — Senza OLED
+- Rimosso display e driver `oled_nodemcu.h`
+- Solo sensore D5, WiFi, ThingSpeak, LED onboard
+
+### nodemcu_v3_acquedotto rev001 — Port da Heltec
+- Cartella: `nodemcu_v3_acquedotto/`
+- ESP8266 NodeMCU V3, sensore D5 (GPIO14)
+
 ### rev008 — IP su OLED pagina sistema
 - Pagina 1/3: riga `IP x.x.x.x` quando WiFi connesso (`IP: ---` altrimenti)
 - Principale: `heltec_esp32_lora_acquedotto/` (SKETCH_REV 8)

@@ -1,0 +1,22 @@
+---
+description: Commenti obbligatori negli sketch acquedotto
+globs: "**/*.ino"
+alwaysApply: false
+---
+
+# Commenti negli sketch
+
+## Obbligatorio
+
+In ogni modifica a file `.ino` del progetto:
+
+1. **Testa file**: blocco commento con cablaggio, scheda Arduino, librerie, revisione.
+2. **Sezioni**: commenti `// --- ... ---` per pin, tempi, impostazioni.
+3. **Funzioni**: breve commento su scopo per funzioni non banali (WiFi, sensore, ThingSpeak, media mobile).
+4. **Loop**: commenti su riavvio, watchdog, lettura sensore, invio cloud.
+5. **Costanti**: spiegare unità e significato (ms, min, cm, soglie).
+
+## Stile
+
+- Italiano, come negli sketch Heltec/NodeMCU esistenti.
+- Non rimuovere commenti utili esistenti quando si refactora.
