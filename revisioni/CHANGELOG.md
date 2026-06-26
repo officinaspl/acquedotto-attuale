@@ -29,6 +29,18 @@
 
 *rev004 rimossa (politica ultimi 3). rev005–rev006 non erano mai state archiviate.*
 
+### heltec_resol_thingspeak rev001 — Resol SLT → ThingSpeak
+- Heltec WiFi LoRa 32 V2, VBus TCP 7053, parser SLT 0x1001, 3 sonde su campi ThingSpeak 1–3
+- WiFi ESP32 (no WiFi101), OLED integrato, stesse credenziali di mkr_resol_thingspeak
+- Cartella: `heltec_resol_thingspeak/`
+
+### mkr_resol_thingspeak rev003 — Commenti completi
+- Header, sezioni e commenti funzioni come sketch acquedotto
+
+### mkr_resol_thingspeak rev001 — Resol SLT → ThingSpeak
+- MKR WiFi 1000, VBus TCP 7053, 3 sonde su campi ThingSpeak 1–3
+- Cartella: `mkr_resol_thingspeak/`
+
 ### nodemcu_v3_acquedotto rev003 — Commenti completi
 - Header, sezioni e commenti funzioni come sketch Heltec
 
