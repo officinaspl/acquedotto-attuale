@@ -1,5 +1,6 @@
-// Shelly Plus 1 - porte BLE -> Telegram
-// Comandi: /stato  /log  /scan
+// Shelly Plus 1 - porte BLE -> Telegram (versione con batteria)
+// Comandi: /stato /log /scan
+// File: shelly_porte_ble_telegram_batteria.js
 // Emoji: CHIUSA = verde, APERTA = rosso, SCONOSCIUTO = neutro
 // BLE_SCAN_ACTIVE=true: scan attivo per service_data (SOPRA spesso li perde in passivo)
 
@@ -39,6 +40,9 @@ let bleScanActive = false;
 let bleActiveRetryDone = false;
 let BLE_SCAN_ACTIVE = true;
 let MAX_RAW_STORE = 80;
+
+let batteriaSopra = -1;
+let batteriaSotto = -1;
 
 let pktSopra = 0;
 let pktSotto = 0;
@@ -83,11 +87,124 @@ function scrMsgTgCritical(msg) {
   httpGet(TG_API + "/sendMessage?chat_id=" + BOT_CHAT_ID + "&text=" + urlEscapeLogAscii("[ERR] " + msg), "sendLog");
 }
 
-let ASCII_TABLE = " !\"#$%&'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\\]^_`abcdefghijklmnopqrstuvwxyz{|}~";
+function digitChar(cc) {
+  switch (cc) {
+    case 48: return "0";
+    case 49: return "1";
+    case 50: return "2";
+    case 51: return "3";
+    case 52: return "4";
+    case 53: return "5";
+    case 54: return "6";
+    case 55: return "7";
+    case 56: return "8";
+    case 57: return "9";
+    default: return "";
+  }
+}
 
-function asciiAt(cc) {
-  if (cc < 32 || cc > 126) return "";
-  return ASCII_TABLE.charAt(cc - 32);
+function upperChar(cc) {
+  switch (cc) {
+    case 65: return "A";
+    case 66: return "B";
+    case 67: return "C";
+    case 68: return "D";
+    case 69: return "E";
+    case 70: return "F";
+    case 71: return "G";
+    case 72: return "H";
+    case 73: return "I";
+    case 74: return "J";
+    case 75: return "K";
+    case 76: return "L";
+    case 77: return "M";
+    case 78: return "N";
+    case 79: return "O";
+    case 80: return "P";
+    case 81: return "Q";
+    case 82: return "R";
+    case 83: return "S";
+    case 84: return "T";
+    case 85: return "U";
+    case 86: return "V";
+    case 87: return "W";
+    case 88: return "X";
+    case 89: return "Y";
+    case 90: return "Z";
+    default: return "";
+  }
+}
+
+function lowerChar(cc) {
+  switch (cc) {
+    case 97: return "a";
+    case 98: return "b";
+    case 99: return "c";
+    case 100: return "d";
+    case 101: return "e";
+    case 102: return "f";
+    case 103: return "g";
+    case 104: return "h";
+    case 105: return "i";
+    case 106: return "j";
+    case 107: return "k";
+    case 108: return "l";
+    case 109: return "m";
+    case 110: return "n";
+    case 111: return "o";
+    case 112: return "p";
+    case 113: return "q";
+    case 114: return "r";
+    case 115: return "s";
+    case 116: return "t";
+    case 117: return "u";
+    case 118: return "v";
+    case 119: return "w";
+    case 120: return "x";
+    case 121: return "y";
+    case 122: return "z";
+    default: return "";
+  }
+}
+
+function punctChar(cc) {
+  switch (cc) {
+    case 33: return "!";
+    case 34: return "\"";
+    case 35: return "#";
+    case 36: return "$";
+    case 39: return "'";
+    case 40: return "(";
+    case 41: return ")";
+    case 42: return "*";
+    case 44: return ",";
+    case 45: return "-";
+    case 46: return ".";
+    case 47: return "/";
+    case 58: return ":";
+    case 59: return ";";
+    case 60: return "<";
+    case 62: return ">";
+    case 64: return "@";
+    case 91: return "[";
+    case 92: return "\\";
+    case 93: return "]";
+    case 94: return "^";
+    case 95: return "_";
+    case 96: return "`";
+    case 123: return "{";
+    case 124: return "|";
+    case 125: return "}";
+    case 126: return "~";
+    default: return "";
+  }
+}
+
+function asciiPrintableChar(cc) {
+  if (cc >= 48 && cc <= 57) return digitChar(cc);
+  if (cc >= 65 && cc <= 90) return upperChar(cc);
+  if (cc >= 97 && cc <= 122) return lowerChar(cc);
+  return punctChar(cc);
 }
 
 function urlEscapeLogAscii(str) {
@@ -95,17 +212,51 @@ function urlEscapeLogAscii(str) {
   let i = 0;
   for (i = 0; i < str.length; i++) {
     let cc = str.charCodeAt(i);
-    if (cc === 32) out = out + "%20";
-    else if (cc === 10) out = out + "%0A";
-    else if (cc === 38) out = out + "%26";
-    else if (cc === 61) out = out + "%3D";
-    else if (cc === 63) out = out + "%3F";
-    else if (cc === 37) out = out + "%25";
-    else if (cc === 43) out = out + "%2B";
-    else {
-      let ch = asciiAt(cc);
-      if (ch.length > 0) out = out + ch;
-    }
+    if (cc === 32) { out = out + "%20"; continue; }
+    if (cc === 10) { out = out + "%0A"; continue; }
+    if (cc === 38) { out = out + "%26"; continue; }
+    if (cc === 61) { out = out + "%3D"; continue; }
+    if (cc === 63) { out = out + "%3F"; continue; }
+    if (cc === 37) { out = out + "%25"; continue; }
+    if (cc === 43) { out = out + "%2B"; continue; }
+    let ch = asciiPrintableChar(cc);
+    if (ch.length > 0) out = out + ch;
+  }
+  return out;
+}
+
+function encodeTitolo(titolo) {
+  if (titolo === "ok") return "ok";
+  if (titolo === "stato attuale") return "stato%20attuale";
+  return "stato%20attuale";
+}
+
+function encodeStato(stato) {
+  if (stato === "CHIUSA") return "CHIUSA";
+  if (stato === "APERTA") return "APERTA";
+  if (stato === "SCONOSCIUTO") return "SCONOSCIUTO";
+  if (stato === "in attesa BLE") return "in%20attesa%20BLE";
+  return "SCONOSCIUTO";
+}
+
+function intToStr2(n) {
+  if (n >= 100) return "100";
+  if (n >= 10) return digitChar(48 + Math.floor(n / 10)) + digitChar(48 + (n % 10));
+  return digitChar(48 + n);
+}
+
+function encodeBattPct(batt) {
+  return "%20" + intToStr2(batt) + "%25";
+}
+
+function encodeTimestamp(ts) {
+  let out = "";
+  let i = 0;
+  for (i = 0; i < ts.length; i++) {
+    let cc = ts.charCodeAt(i);
+    if (cc === 58) { out = out + "%3A"; continue; }
+    if (cc >= 48 && cc <= 57) { out = out + digitChar(cc); continue; }
+    if (cc === 63) { out = out + "?"; continue; }
   }
   return out;
 }
@@ -181,6 +332,37 @@ function getStatoDaRaw(raw, hard) {
   return "SCONOSCIUTO";
 }
 
+function isBatteryPct(code) {
+  return code >= 0 && code <= 100;
+}
+
+function getBatteriaDaRaw(raw) {
+  if (!raw || typeof raw !== "string" || raw.length === 0) return -1;
+  if (raw.length > 4) {
+    let c4 = raw.charCodeAt(4);
+    if (isBatteryPct(c4)) return c4;
+  }
+  if (raw.length > 9) {
+    let c9 = raw.charCodeAt(9);
+    if (isBatteryPct(c9)) return c9;
+  }
+  let tryIdx = [5, 6, 7, 11];
+  let i = 0;
+  for (i = 0; i < tryIdx.length; i++) {
+    let idx = tryIdx[i];
+    if (raw.length > idx) {
+      let c = raw.charCodeAt(idx);
+      if (isBatteryPct(c)) return c;
+    }
+  }
+  return -1;
+}
+
+function formatBattLog(batt) {
+  if (batt >= 0 && batt <= 100) return batt + "%";
+  return "?";
+}
+
 function hexSpacedToRaw(hexStr) {
   if (!hexStr || typeof hexStr !== "string") return "";
   let parts = hexStr.split(" ");
@@ -212,9 +394,13 @@ function getColorEmojiLog(stato) {
   return "[?]";
 }
 
-function buildStatoLineEncoded(label, titolo, stato, ts) {
-  return getColorEmojiEncoded(stato) + "%20" + label + "%20" + urlEscapeLogAscii(titolo) +
-         "%3A%20" + urlEscapeLogAscii(stato) + "%20" + urlEscapeLogAscii(ts);
+function buildStatoLineEncoded(label, titolo, stato, ts, batt) {
+  let battStr = "";
+  if (batt >= 0 && batt <= 100) {
+    battStr = encodeBattPct(batt);
+  }
+  return getColorEmojiEncoded(stato) + "%20" + label + "%20" + encodeTitolo(titolo) +
+         "%3A%20" + encodeStato(stato) + battStr + "%20" + encodeTimestamp(ts);
 }
 
 function getStatoLiveSopra() {
@@ -234,14 +420,17 @@ function ritentaParsePerStato(isSopra) {
   if (raw.length === 0) return;
   let stato = getStatoDaRaw(raw, true);
   if (stato === "SCONOSCIUTO") return;
+  let batt = getBatteriaDaRaw(raw);
   if (isSopra) {
     ultimoStatoSopra = stato;
+    if (batt >= 0) batteriaSopra = batt;
     if (statoPortaSopra === "SCONOSCIUTO") {
       statoPortaSopra = stato;
       scrMsg("SOPRA /stato retry " + stato);
     }
   } else {
     ultimoStatoSotto = stato;
+    if (batt >= 0) batteriaSotto = batt;
     if (statoPortaSotto === "SCONOSCIUTO") {
       statoPortaSotto = stato;
       scrMsg("SOTTO /stato retry " + stato);
@@ -265,8 +454,8 @@ function getStatoLiveSotto() {
 
 function buildStatoMessageEncoded(titoloSopra, titoloSotto) {
   let ts = getTimestamp();
-  return buildStatoLineEncoded("SOPRA", titoloSopra, statoPortaSopra, ts) + "%0A" +
-         buildStatoLineEncoded("SOTTO", titoloSotto, statoPortaSotto, ts);
+  return buildStatoLineEncoded("SOPRA", titoloSopra, statoPortaSopra, ts, batteriaSopra) + "%0A" +
+         buildStatoLineEncoded("SOTTO", titoloSotto, statoPortaSotto, ts, batteriaSotto);
 }
 
 function getStatoDisplay(isSopra) {
@@ -279,14 +468,16 @@ function getStatoDisplay(isSopra) {
 
 function buildStatoMessageEncodedForStato(titoloSopra, titoloSotto) {
   let ts = getTimestamp();
-  return buildStatoLineEncoded("SOPRA", titoloSopra, getStatoDisplay(true), ts) + "%0A" +
-         buildStatoLineEncoded("SOTTO", titoloSotto, getStatoDisplay(false), ts);
+  return buildStatoLineEncoded("SOPRA", titoloSopra, getStatoDisplay(true), ts, batteriaSopra) + "%0A" +
+         buildStatoLineEncoded("SOTTO", titoloSotto, getStatoDisplay(false), ts, batteriaSotto);
 }
 
 function messaggioStatoEntrambeLog(titoloSopra, titoloSotto) {
   let ts = getTimestamp();
-  return getColorEmojiLog(statoPortaSopra) + " SOPRA " + titoloSopra + ": " + statoPortaSopra + " " + ts + "\n" +
-         getColorEmojiLog(statoPortaSotto) + " SOTTO " + titoloSotto + ": " + statoPortaSotto + " " + ts;
+  return getColorEmojiLog(statoPortaSopra) + " SOPRA " + titoloSopra + ": " + statoPortaSopra +
+         " " + formatBattLog(batteriaSopra) + " " + ts + "\n" +
+         getColorEmojiLog(statoPortaSotto) + " SOTTO " + titoloSotto + ": " + statoPortaSotto +
+         " " + formatBattLog(batteriaSotto) + " " + ts;
 }
 
 function pad2(n) {
@@ -379,6 +570,7 @@ function msgDiagnostica() {
   msg = msg + "SOTTO stato=" + statoPortaSotto + " live=" + getStatoLiveSotto() + "\n";
   msg = msg + "  perche: " + motivoSconosciuto(false) + "\n";
   msg = msg + "ultimo SOPRA=" + ultimoStatoSopra + " SOTTO=" + ultimoStatoSotto + "\n";
+  msg = msg + "batt SOPRA=" + formatBattLog(batteriaSopra) + " SOTTO=" + formatBattLog(batteriaSotto) + "\n";
   msg = msg + "pkt SOPRA=" + pktSopra + " ok=" + pktSopraFcd2 + " fail=" + parseFailSopra + "\n";
   msg = msg + "pkt SOTTO=" + pktSotto + " ok=" + pktSottoFcd2 + " fail=" + parseFailSotto + "\n";
   msg = msg + "SOPRA noSvc=" + pktSopraNoSvc + " SOTTO noSvc=" + pktSottoNoSvc + "\n";
@@ -565,12 +757,15 @@ function processUpdate(mac, raw, svcKey) {
     }
     return;
   }
+  let batt = getBatteriaDaRaw(raw);
   if (isSopra) {
     pktSopraFcd2 = pktSopraFcd2 + 1;
     ultimoStatoSopra = stato;
+    if (batt >= 0) batteriaSopra = batt;
   } else {
     pktSottoFcd2 = pktSottoFcd2 + 1;
     ultimoStatoSotto = stato;
+    if (batt >= 0) batteriaSotto = batt;
   }
   schedulaConferma(mac, stato);
 }
