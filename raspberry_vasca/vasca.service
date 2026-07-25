@@ -1,0 +1,16 @@
+[Unit]
+Description=Dashboard Vasca Principale (Node)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/home/pi/vasca
+ExecStart=/usr/bin/node server.js
+Restart=always
+RestartSec=5
+User=pi
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target

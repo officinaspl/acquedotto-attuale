@@ -1,0 +1,14 @@
+# Cloudflare Tunnel — esempio config
+# File tipico: /home/pi/.cloudflared/config.yml
+#
+# 1) cloudflared tunnel create vasca
+# 2) cloudflared tunnel route dns vasca vasca.TUODOMINIO.com
+# 3) avvia: cloudflared tunnel run vasca
+
+tunnel: SOSTITUisci_CON_TUNNEL_ID
+credentials-file: /home/pi/.cloudflared/SOSTITUisci_CON_TUNNEL_ID.json
+
+ingress:
+  - hostname: vasca.TUODOMINIO.com
+    service: http://127.0.0.1:3000
+  - service: http_status:404
