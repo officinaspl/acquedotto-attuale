@@ -29,6 +29,16 @@
 
 *rev004 rimossa (politica ultimi 3). rev005–rev006 non erano mai state archiviate.*
 
+### heltec_valvola_telegram rev002 — Notifica a fine impulso
+- A scadenza `IMPULSO_VALVOLA_MS` il bot invia in automatico stato + motore fermo
+- Cartella: `heltec_valvola_telegram/`
+
+### heltec_valvola_telegram rev001 — Valvola tre vie + Telegram
+- Heltec WiFi LoRa 32 V2 dedicata (scheda separata dal livello vasca)
+- Due relè GPIO 12/13, impulso mutua esclusione, comandi `/apri` `/chiudi` `/stato`
+- Librerie: UniversalTelegramBot, ArduinoJson; OLED locale
+- Cartella: `heltec_valvola_telegram/`
+
 ### heltec_resol_thingspeak rev001 — Resol SLT → ThingSpeak
 - Heltec WiFi LoRa 32 V2, VBus TCP 7053, parser SLT 0x1001, 3 sonde su campi ThingSpeak 1–3
 - WiFi ESP32 (no WiFi101), OLED integrato, stesse credenziali di mkr_resol_thingspeak
