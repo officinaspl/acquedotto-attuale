@@ -1,0 +1,2 @@
+# Override locale (non versionare segreti)
+config.local.php

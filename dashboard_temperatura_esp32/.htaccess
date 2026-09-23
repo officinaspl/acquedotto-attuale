@@ -1,0 +1,7 @@
+# Blocca lettura diretta dei file di configurazione (Apache)
+<FilesMatch "^(config\.php|config\.local\.php)$">
+  Require all denied
+</FilesMatch>
+
+# Evita listing directory
+Options -Indexes

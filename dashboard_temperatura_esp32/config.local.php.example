@@ -1,0 +1,7 @@
+<?php
+/**
+ * Esempio di override locale.
+ * Copia come config.local.php sul server e valorizza la chiave.
+ */
+// define('INGEST_KEY', 'cambia-questa-chiave');
+// define('UI_REFRESH_SEC', 60);
